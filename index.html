@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Facebook 链接清理工具</title>
+<link rel="icon" type="image/png" href="clean.png">
+
+<style>
+
+/* =========================
+   基础样式
+   ========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+
+    padding: 40px 20px;
+
+    background: #f5f6f8;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Microsoft YaHei",
+        sans-serif;
+
+    color: #222;
+
+}
+
+
+.container {
+
+    max-width: 800px;
+
+    margin: 0 auto;
+
+}
+
+
+/* =========================
+   标题
+   ========================= */
+
+h1 {
+
+    margin-bottom: 8px;
+
+    font-size: 28px;
+
+}
+
+
+.description {
+
+    color: #666;
+
+    margin-bottom: 25px;
+
+}
+
+
+/* =========================
+   输入框
+   ========================= */
+
+textarea {
+
+    width: 100%;
+
+    min-height: 150px;
+
+    resize: vertical;
+
+    padding: 14px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+
+    font-family: Consolas, monospace;
+
+    outline: none;
+
+    background: white;
+
+}
+
+
+textarea:focus {
+
+    border-color: #1877f2;
+
+}
+
+
+/* =========================
+   顶部按钮
+   ========================= */
+
+.buttons {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 12px;
+
+}
+
+
+button {
+
+    border: none;
+
+    border-radius: 7px;
+
+    padding: 10px 18px;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+}
+
+
+#cleanBtn {
+
+    background: #1877f2;
+
+    color: white;
+
+}
+
+
+#cleanBtn:hover {
+
+    background: #0d65d9;
+
+}
+
+
+#clearBtn {
+
+    background: #ddd;
+
+    color: #333;
+
+}
+
+
+#clearBtn:hover {
+
+    background: #ccc;
+
+}
+
+
+/* =========================
+   结果区域
+   ========================= */
+
+.result-box {
+
+    margin-top: 25px;
+
+}
+
+
+.result-title {
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+
+}
+
+
+.result {
+
+    background: white;
+
+    border: 1px solid #ddd;
+
+    border-radius: 8px;
+
+    padding: 14px;
+
+    min-height: 55px;
+
+    word-break: break-all;
+
+    font-family: Consolas, monospace;
+
+    line-height: 1.5;
+
+}
+
+
+.result.success {
+
+    border-color: #4caf50;
+
+}
+
+
+.result.error {
+
+    border-color: #e53935;
+
+    color: #d32f2f;
+
+}
+
+
+/* =========================
+   结果按钮
+   ========================= */
+
+.result-buttons {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 10px;
+
+}
+
+
+.copy-btn {
+
+    background: #eee;
+
+}
+
+
+.copy-btn:hover {
+
+    background: #ddd;
+
+}
+
+
+.open-btn {
+
+    background: #1877f2;
+
+    color: white;
+
+}
+
+
+.open-btn:hover:not(:disabled) {
+
+    background: #0d65d9;
+
+}
+
+
+/* 禁用状态 */
+
+.open-btn:disabled {
+
+    background: #ccc;
+
+    color: #888;
+
+    cursor: not-allowed;
+
+}
+
+
+/* =========================
+   说明区域
+   ========================= */
+
+.info {
+
+    margin-top: 25px;
+
+    padding: 15px;
+
+    background: #fff;
+
+    border-radius: 8px;
+
+    color: #555;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+}
+
+
+.info ul {
+
+    margin-top: 8px;
+
+}
+
+
+code {
+
+    background: #eee;
+
+    padding: 2px 5px;
+
+    border-radius: 4px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================
+         标题
+         ========================= -->
+
+    <h1>Facebook 链接清理工具</h1>
+
+
+    <div class="description">
+
+        去掉 Facebook 跳转包装和追踪参数，生成干净的原始链接。
+
+    </div>
+
+
+    <!-- =========================
+         输入区域
+         ========================= -->
+
+    <textarea
+        id="input"
+        placeholder="把 Facebook 链接粘贴到这里……"
+    ></textarea>
+
+
+    <div class="buttons">
+
+        <button id="cleanBtn">
+            清理链接
+        </button>
+
+        <button id="clearBtn">
+            清空
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         结果区域
+         ========================= -->
+
+    <div class="result-box">
+
+
+        <div class="result-title">
+            清理后的链接
+        </div>
+
+
+        <div id="result" class="result">
+            等待输入……
+        </div>
+
+
+        <!-- 复制 + 打开 -->
+
+        <div class="result-buttons">
+
+            <button id="copyBtn" class="copy-btn">
+                复制结果
+            </button>
+
+
+            <button
+                id="openBtn"
+                class="open-btn"
+                disabled
+            >
+                打开链接
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================
+         使用说明
+         ========================= -->
+
+    <div class="info">
+
+
+        <strong>会处理：</strong>
+
+
+        <ul>
+
+            <li>
+                <code>l.facebook.com/l.php?u=...</code>
+                Facebook 跳转包装
+            </li>
+            
+            <li>
+                <code>l.messenger.com/l.php?u=...</code>
+                messenger 跳转包装
+            </li>
+
+            <li>
+                <code>lm.facebook.com/l.php?u=...</code>
+                Facebook 移动端跳转包装
+            </li>
+
+            <li>
+                <code>fbclid</code>
+                Facebook 点击追踪参数
+            </li>
+
+            <li>
+                <code>mibextid</code>
+                Meta 分享追踪参数
+            </li>
+
+            <li>
+                <code>rdid</code>
+                Meta 重定向参数
+            </li>
+
+            <li>
+                <code>shbid</code> / <code>shbv</code>
+                Facebook 分享参数
+            </li>
+
+            <li>
+                <code>utm_*</code>
+                常见营销追踪参数
+            </li>
+
+        </ul>
+
+
+        <strong>注意：</strong>
+
+
+        <p>
+
+            不会简单粗暴地删除目标网址的所有参数。
+
+            例如
+            <code>?id=123</code>、
+            <code>?page=2</code>
+            等可能是网页正常工作所需要的参数会被保留。
+
+        </p>
+
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+/* =========================================================
+   获取页面元素
+   ========================================================= */
+
+const input = document.getElementById("input");
+
+const result = document.getElementById("result");
+
+const cleanBtn = document.getElementById("cleanBtn");
+
+const clearBtn = document.getElementById("clearBtn");
+
+const copyBtn = document.getElementById("copyBtn");
+
+const openBtn = document.getElementById("openBtn");
+
+
+
+/* =========================================================
+   Facebook / Meta 常见追踪参数
+   ========================================================= */
+
+const trackingParams = new Set([
+
+    "fbclid",
+
+    "mibextid",
+
+    "rdid",
+
+    "shbid",
+
+    "shbv"
+
+]);
+
+
+
+/* =========================================================
+   判断参数是否为追踪参数
+   ========================================================= */
+
+function isTrackingParameter(name) {
+
+
+    const lower = name.toLowerCase();
+
+
+    return (
+
+        trackingParams.has(lower)
+
+        ||
+
+        lower.startsWith("utm_")
+
+    );
+
+}
+
+
+
+/* =========================================================
+   清理 URL
+   ========================================================= */
+
+function cleanUrl(inputUrl) {
+
+
+    let url = inputUrl.trim();
+
+
+    /* -----------------------------------------
+       检查是否为空
+       ----------------------------------------- */
+
+    if (!url) {
+
+        throw new Error("请输入链接");
+
+    }
+
+
+
+    /* -----------------------------------------
+       去掉复制时可能带上的尖括号
+
+       例如：
+
+       <https://example.com>
+       ----------------------------------------- */
+
+    if (
+
+        url.startsWith("<")
+
+        &&
+
+        url.endsWith(">")
+
+    ) {
+
+        url = url.slice(1, -1);
+
+    }
+
+
+
+    /* =====================================================
+       第一步：
+       判断是不是 Facebook 外层跳转链接
+       ===================================================== */
+
+    try {
+
+
+        const parsed = new URL(url);
+
+
+        const host = parsed.hostname.toLowerCase();
+
+
+        const isFacebookWrapper =
+
+            (
+
+                host === "l.facebook.com"
+                ||
+                host === "lm.facebook.com"
+                ||
+                host === "l.messenger.com"
+
+            )
+
+            &&
+
+            parsed.pathname === "/l.php";
+
+
+
+        /* -----------------------------------------
+           如果是：
+
+           https://l.facebook.com/l.php?u=xxxx
+
+           提取 u 参数
+           ----------------------------------------- */
+
+        if (isFacebookWrapper) {
+
+
+            const target =
+                parsed.searchParams.get("u");
+
+
+            if (!target) {
+
+                throw new Error(
+                    "这是 Facebook 跳转链接，但没有找到 u 参数"
+                );
+
+            }
+
+
+            /*
+             * URLSearchParams 会自动进行 URL 解码。
+             *
+             * 例如：
+             *
+             * https%3A%2F%2Fexample.com
+             *
+             * 会变成：
+             *
+             * https://example.com
+             */
+
+            url = target;
+
+        }
+
+
+    } catch (e) {
+
+
+        /*
+         * 如果是我们主动抛出的 Facebook 错误，
+         * 就继续向外抛出。
+         */
+
+        if (
+            e.message.includes("Facebook")
+        ) {
+
+            throw e;
+
+        }
+
+    }
+
+
+
+    /* =====================================================
+       第二步：
+       解析真正的目标网址
+       ===================================================== */
+
+    let targetUrl;
+
+
+    try {
+
+        targetUrl = new URL(url);
+
+    } catch {
+
+        throw new Error("无法识别这个链接");
+
+    }
+
+
+
+    /* =====================================================
+       第三步：
+       删除追踪参数
+       ===================================================== */
+
+    const params =
+        targetUrl.searchParams;
+
+
+    /*
+     * [...params.keys()]
+     *
+     * 先复制一份参数名称列表，
+     * 避免删除参数时影响遍历。
+     */
+
+    for (
+        const key of [...params.keys()]
+    ) {
+
+
+        if (
+            isTrackingParameter(key)
+        ) {
+
+            params.delete(key);
+
+        }
+
+    }
+
+
+
+    /* =====================================================
+       第四步：
+       更新 URL
+       ===================================================== */
+
+    targetUrl.search =
+        params.toString();
+
+
+
+    /* =====================================================
+       返回最终干净 URL
+       ===================================================== */
+
+    return targetUrl.toString();
+
+}
+
+
+
+/* =========================================================
+   点击“清理链接”
+   ========================================================= */
+
+cleanBtn.addEventListener(
+    "click",
+    () => {
+
+
+        try {
+
+
+            const cleaned =
+                cleanUrl(input.value);
+
+
+            /* 显示结果 */
+
+            result.textContent =
+                cleaned;
+
+
+            result.className =
+                "result success";
+
+
+            /*
+             * 清理成功：
+             * 启用“打开链接”
+             */
+
+            openBtn.disabled = false;
+
+
+        }
+
+
+        catch (error) {
+
+
+            /* 显示错误 */
+
+            result.textContent =
+                error.message;
+
+
+            result.className =
+                "result error";
+
+
+            /*
+             * 清理失败：
+             * 禁用“打开链接”
+             */
+
+            openBtn.disabled = true;
+
+        }
+
+    }
+);
+
+
+
+/* =========================================================
+   Ctrl + Enter 快速清理
+   ========================================================= */
+
+input.addEventListener(
+    "keydown",
+    (event) => {
+
+
+        if (
+
+            event.ctrlKey
+
+            &&
+
+            event.key === "Enter"
+
+        ) {
+
+            cleanBtn.click();
+
+        }
+
+    }
+);
+
+
+
+/* =========================================================
+   点击“清空”
+   ========================================================= */
+
+clearBtn.addEventListener(
+    "click",
+    () => {
+
+
+        /* 清空输入 */
+
+        input.value = "";
+
+
+        /* 恢复结果 */
+
+        result.textContent =
+            "等待输入……";
+
+
+        result.className =
+            "result";
+
+
+        /* 禁用打开按钮 */
+
+        openBtn.disabled = true;
+
+
+        /* 光标回到输入框 */
+
+        input.focus();
+
+    }
+);
+
+
+
+/* =========================================================
+   点击“复制结果”
+   ========================================================= */
+
+copyBtn.addEventListener(
+    "click",
+    async () => {
+
+
+        const text =
+            result.textContent;
+
+
+        /*
+         * 没有有效结果时不复制
+         */
+
+        if (
+
+            !text
+
+            ||
+
+            text === "等待输入……"
+
+            ||
+
+            result.classList.contains("error")
+
+        ) {
+
+            return;
+
+        }
+
+
+        try {
+
+
+            /*
+             * 使用浏览器 Clipboard API
+             */
+
+            await navigator.clipboard.writeText(
+                text
+            );
+
+
+            /*
+             * 临时改变按钮文字
+             */
+
+            copyBtn.textContent =
+                "已复制";
+
+
+            /*
+             * 1.5 秒后恢复
+             */
+
+            setTimeout(
+                () => {
+
+                    copyBtn.textContent =
+                        "复制结果";
+
+                },
+                1500
+            );
+
+
+        }
+
+
+        catch {
+
+
+            alert(
+                "复制失败，请手动复制"
+            );
+
+        }
+
+    }
+);
+
+
+
+/* =========================================================
+   点击“打开链接”
+   ========================================================= */
+
+openBtn.addEventListener(
+    "click",
+    () => {
+
+
+        const url =
+            result.textContent;
+
+
+        /*
+         * 防止没有有效 URL 时打开
+         */
+
+        if (
+
+            !url
+
+            ||
+
+            url === "等待输入……"
+
+            ||
+
+            result.classList.contains("error")
+
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * 新标签页打开干净链接。
+         *
+         * noopener / noreferrer
+         * 可以避免新页面通过 window.opener
+         * 访问当前页面。
+         */
+
+        window.open(
+            url,
+            "_blank",
+            "noopener,noreferrer"
+        );
+
+    }
+);
+
+
+</script>
+
+
+</body>
+
+</html>
+
